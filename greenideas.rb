@@ -37,7 +37,6 @@ def choose_action(name)
     end
     
     weighted_options = $rule_index[name].select { |action| !action.chance.nil? }
-                                        .sort { |a, b| a.chance <=> b.chance }
     
     if weighted_options.length == 0
         return $rule_index[name][rand($rule_index[name].length)].action
