@@ -22,10 +22,12 @@ class Action
     end
 end
 
-$rule_index = { }
+class StackFrame
+end
 
+$rule_index = { }
 $MAX_DEPTH = 30
-$depth_tracker = { }
+$stack = []
 
 def choose_action(name)
     if (not $rule_index.has_key? name) or
@@ -61,8 +63,6 @@ def choose_action(name)
 end
 
 def rule(name, chance=nil, &action)
-    $depth_tracker[name] = 0
-    
     if $rule_index.has_key? name
         $rule_index[name].push Action.new(chance, action)
     else
@@ -72,15 +72,18 @@ def rule(name, chance=nil, &action)
     define_singleton_method name do
         debug "running rule #{name}"        
         
-        if $depth_tracker[name] <= $MAX_DEPTH
-            $depth_tracker[name] += 1
+        if $stack.length <= $MAX_DEPTH
+            $stack.push StackFrame.new
+            
             choose_action(name).call
+            
+            $stack.pop
         end        
     end
 end
 
 def draw(rule)
-    $depth_tracker.each_key { |key| $depth_tracker[key] = 0 }
+    $stack = []
 
     send rule
 end
