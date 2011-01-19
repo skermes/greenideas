@@ -35,6 +35,10 @@ rule :myshape, 0.8 do
     myshape
 end
 
-$debugging = false
-draw :myshape
-puts "a: #{a} b #{b} c #{c}"
+rule :smaller_circle do
+    circle
+    smaller_circle size: 0.7
+end
+
+$debugging = true
+draw :smaller_circle

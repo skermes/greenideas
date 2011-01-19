@@ -67,7 +67,7 @@ class StackFrame
 end
 
 $rule_index = { }
-$MAX_DEPTH = 30
+$MAX_DEPTH = 5
 $stack = []
 
 def choose_action(name)
@@ -109,36 +109,37 @@ def rule(name, chance=nil, &action)
         $rule_index[name] = [Action.new(chance, action)]
     end
     
-    define_singleton_method name do |options|
+    define_singleton_method name do |options={}|
+        debug ""
         debug "running rule #{name}"
         debug "supplied options #{options}"
         
-        # The (somewhat arbitrary) semantics we're working with right now are
-        # that size, x and y are multiplicative, while everything else is 
-        # additive.
-        parent_frame = $stack[-1]
-        d_scale = options[:scale] || 1
-        d_x = options[:x] || 1
-        d_y = options[:y] || 1
-        d_rot = options[:rotation] || 0
-        d_bright = options[:brightness] || 0
-        d_hue = options[:hue] || 0
-        d_sat = options[:saturation] || 0
-        new_frame = StackFrame.new parent_frame.scale * d_scale,
-                                   parent_frame.x * d_x,
-                                   parent_frame.y * d_y,
-                                   parent_frame.rotation * d_rot,
-                                   parent_frame.brightness * d_bright,
-                                   parent_frame.hue * d_hue,
-                                   parent_frame.saturation * d_sat
-                                   
-        debug new_frame
         
-        $stack.push new_frame
-        
-        if $stack.length <= $MAX_DEPTH
-            $stack.push StackFrame.new
+        if $stack.length <= $MAX_DEPTH            
+            # The (somewhat arbitrary) semantics we're working with right now are
+            # that size, x and y are multiplicative, while everything else is 
+            # additive.
+            parent_frame = $stack[-1]
+            d_size = options[:size] || 1
+            d_x = options[:x] || 1
+            d_y = options[:y] || 1
+            d_rot = options[:rotation] || 0
+            d_bright = options[:brightness] || 0
+            d_hue = options[:hue] || 0
+            d_sat = options[:saturation] || 0
+            new_frame = StackFrame.new(parent_frame.size * d_size,
+                                       parent_frame.x * d_x,
+                                       parent_frame.y * d_y,
+                                       parent_frame.rotation * d_rot,
+                                       parent_frame.brightness * d_bright,
+                                       parent_frame.hue * d_hue,
+                                       parent_frame.saturation * d_sat)
+                                       
+            debug "new frame:"            
+            debug new_frame
             
+            $stack.push new_frame
+        
             choose_action(name).call
             
             $stack.pop
