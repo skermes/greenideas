@@ -87,10 +87,10 @@ end
 
 # Primitive drawing methods
 
-def circle
+rule :circle do
     puts 'drawing a circle'
 end
 
-def rectangle
+rule :rectangle do
     puts 'drawing a rectangle'
 end

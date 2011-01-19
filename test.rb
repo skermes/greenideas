@@ -19,11 +19,13 @@ b = 0
 c = 0
 
 rule :myshape do
+    rectangle
     a += 1
     myshape
 end
 
 rule :myshape do
+    circle
     b += 1
     myshape
 end
