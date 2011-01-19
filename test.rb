@@ -40,5 +40,10 @@ rule :smaller_circle do
     smaller_circle size: 0.7
 end
 
+rule :spin_rectangle_left do
+    rectangle
+    spin_rectangle_left rotation: 10, x: -0.2
+end
+
 $debugging = true
-draw :smaller_circle
+draw :spin_rectangle_left
