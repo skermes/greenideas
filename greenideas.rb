@@ -23,6 +23,47 @@ class Action
 end
 
 class StackFrame
+    def initialize(size, x, y, rotation, brightness, hue, saturation)
+        @size = size
+        @x = x
+        @y = y
+        @rotation = rotation
+        @brightness = brightness
+        @hue = hue
+        @saturation = saturation
+    end
+    
+    def size
+        return @size
+    end
+    
+    def x
+        return @x
+    end
+    
+    def y
+        return @y
+    end
+    
+    def rotation
+        return @rotation
+    end
+    
+    def brightness
+        return @brightness
+    end
+    
+    def hue
+        return @hue
+    end
+    
+    def saturation
+        return @saturation
+    end
+    
+    def to_s
+        "StackFrame: s #{@size}; x #{@x}; y #{@y}; r #{@rotation}; b #{@brightness}; h #{@hue}; sat #{saturation}"
+    end
 end
 
 $rule_index = { }
@@ -68,8 +109,32 @@ def rule(name, chance=nil, &action)
         $rule_index[name] = [Action.new(chance, action)]
     end
     
-    define_singleton_method name do
-        debug "running rule #{name}"        
+    define_singleton_method name do |options|
+        debug "running rule #{name}"
+        debug "supplied options #{options}"
+        
+        # The (somewhat arbitrary) semantics we're working with right now are
+        # that size, x and y are multiplicative, while everything else is 
+        # additive.
+        parent_frame = $stack[-1]
+        d_scale = options[:scale] || 1
+        d_x = options[:x] || 1
+        d_y = options[:y] || 1
+        d_rot = options[:rotation] || 0
+        d_bright = options[:brightness] || 0
+        d_hue = options[:hue] || 0
+        d_sat = options[:saturation] || 0
+        new_frame = StackFrame.new parent_frame.scale * d_scale,
+                                   parent_frame.x * d_x,
+                                   parent_frame.y * d_y,
+                                   parent_frame.rotation * d_rot,
+                                   parent_frame.brightness * d_bright,
+                                   parent_frame.hue * d_hue,
+                                   parent_frame.saturation * d_sat
+                                   
+        debug new_frame
+        
+        $stack.push new_frame
         
         if $stack.length <= $MAX_DEPTH
             $stack.push StackFrame.new
@@ -82,7 +147,7 @@ def rule(name, chance=nil, &action)
 end
 
 def draw(rule)
-    $stack = []
+    $stack = [StackFrame.new(200, 100, 100, 0, 0, 0, 0)]
 
     send rule
 end
